@@ -1,0 +1,30 @@
+title: CastleLoader AutoIt Spawning Suspended Process Target
+description: >-
+  Detects AutoIt launching the legacy JScript.NET compiler jsc.exe. CastleLoader uses
+  an obfuscated AutoIt script to create jsc.exe suspended before injecting its core
+  module into the child process. This process ancestry is unusual and provides a
+  behavior-based detection opportunity before the loader contacts its command and
+  control server.
+id: b09c2f75-5de4-4ca1-a93c-02f6c0bb1f91
+status: experimental
+references:
+  - https://any.run/cybersecurity-blog/castleloader-malware-analysis/
+author: OpenAI
+date: 2026-08-13
+tags:
+  - attack.t1059.010
+  - attack.t1055.012
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith:
+      - '\AutoIt3.exe'
+      - '\AutoIt3_x64.exe'
+  selection_child:
+    Image|endswith: '\jsc.exe'
+  condition: selection_parent and selection_child
+falsepositives:
+  - Legitimate AutoIt automation that invokes the legacy JScript.NET compiler; validate the parent command line, script path, signer, and subsequent jsc.exe behavior.
+level: high
